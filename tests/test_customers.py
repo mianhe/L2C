@@ -212,12 +212,87 @@ class TestCustomerDetail:
 
 class TestCustomerUpdate:
     """测试更新客户信息相关的接口"""
-    pass
+    
+    def test_update_existing_customer_should_succeed(self, client, db_session):
+        """测试更新已存在的客户信息应该成功"""
+        # 创建测试数据
+        customer = Customer(
+            name="Test Customer",
+            city="Test City",
+            industry="Test Industry",
+            cargo_type="Test Cargo",
+            size=CustomerSize.SMALL
+        )
+        db_session.add(customer)
+        db_session.commit()
+        
+        # 发送请求
+        response = client.put(f"/api/customers/{customer.id}", json={
+            "name": "Updated Customer",
+            "city": "Updated City",
+            "industry": "Updated Industry",
+            "cargo_type": "Updated Cargo",
+            "size": "MEDIUM"
+        })
+        
+        # 验证响应
+        assert response.status_code == 200, "响应状态码应为 200"
+        data = response.json()
+        
+        # 验证返回数据
+        assert data["id"] == customer.id
+        assert data["name"] == "Updated Customer"
+        assert data["city"] == "Updated City"
+        assert data["industry"] == "Updated Industry"
+        assert data["cargo_type"] == "Updated Cargo"
+        assert data["size"] == "MEDIUM"
+
+    def test_update_nonexistent_customer_should_fail(self, client):
+        """测试更新不存在的客户信息应该失败"""
+        # 发送请求
+        response = client.put("/api/customers/99999", json={
+            "name": "Updated Customer",
+            "city": "Updated City",
+            "industry": "Updated Industry",
+            "cargo_type": "Updated Cargo",
+            "size": "MEDIUM"
+        })  
+        
+        # 验证响应
+        assert response.status_code == 404, "响应状态码应为 404"
+        
+        # 验证错误信息
+        data = response.json()
+        assert "detail" in data, "响应应包含 detail 字段"
+        assert data["detail"] == "Customer not found"
 
 class TestCustomerDelete:
     """测试删除客户相关的接口"""
-    pass
-
+    
+    def test_delete_existing_customer_should_succeed(self, client, db_session):
+        """测试删除已存在的客户应该成功"""
+        # 创建测试数据
+        customer = Customer(
+            name="Test Customer",
+            city="Test City",
+            industry="Test Industry",
+            cargo_type="Test Cargo",
+            size=CustomerSize.SMALL
+        )
+        db_session.add(customer)
+        db_session.commit()
+        
+        # 发送请求
+        response = client.delete(f"/api/customers/{customer.id}")
+        
+        # 验证响应
+        assert response.status_code == 200, "响应状态码应为 200"
+        data = response.json()
+        
+        # 验证返回数据
+        assert data["id"] == customer.id
+        assert data["name"] == customer.name
+        
 class TestCustomerListQuery:
     """测试客户列表的查询参数相关的接口"""
     pass
