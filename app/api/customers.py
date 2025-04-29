@@ -101,7 +101,7 @@ async def update_customer(customer_id: int, customer: CustomerCreate, db: Sessio
             content={"detail": str(e)}
         )
 
-@router.delete("/{customer_id}")
+@router.delete("/{customer_id}", response_model=CustomerSchema)
 async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     """删除客户"""
     try:
@@ -112,12 +112,19 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
                 content={"detail": "Customer not found"}
             )
         
+        # 保存客户信息用于返回
+        customer_data = {
+            "id": db_customer.id,
+            "name": db_customer.name,
+            "city": db_customer.city,
+            "industry": db_customer.industry,
+            "cargo_type": db_customer.cargo_type,
+            "size": db_customer.size
+        }
+        
         db.delete(db_customer)
         db.commit()
-        return JSONResponse(
-            status_code=200,
-            content={"detail": "Customer deleted successfully"}
-        )
+        return customer_data
     except Exception as e:
         logger.error(f"Error deleting customer: {str(e)}")
         db.rollback()
