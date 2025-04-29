@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import logging
 import os
 
+
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,9 +35,11 @@ _test_db = None
 
 Base = declarative_base()
 
+
 def init_db():
     """初始化数据库表结构"""
     Base.metadata.create_all(bind=engine)
+
 
 def get_db():
     """数据库会话依赖"""
@@ -59,8 +62,9 @@ def get_db():
         finally:
             db.close()
 
+
 def set_test_db(db):
     """设置测试数据库会话"""
     global _test_db
     _test_db = db
-    logger.info("测试数据库会话设置成功") 
+    logger.info("测试数据库会话设置成功")

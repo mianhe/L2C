@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Dict
 
+
 class CustomerSize(str, Enum):
     SMALL = "SMALL"
     MEDIUM = "MEDIUM"
@@ -13,4 +14,4 @@ class CustomerSize(str, Enum):
         return [
             {"value": size.name, "label": size.name.replace("_", " ").title()}
             for size in cls
-        ] 
+        ]

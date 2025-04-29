@@ -1,6 +1,5 @@
-from enum import Enum, auto
+from enum import Enum
 from typing import Dict, Any, Optional
-from pydantic import BaseModel
 
 
 class ErrorCode(str, Enum):
@@ -10,7 +9,6 @@ class ErrorCode(str, Enum):
     INTERNAL_ERROR = "INTERNAL_ERROR"
     DATABASE_ERROR = "DATABASE_ERROR"
     INVALID_PARAMETERS = "INVALID_PARAMETERS"
-    
     # 业务错误
     CUSTOMER_NOT_FOUND = "CUSTOMER_NOT_FOUND"
     TOOL_NOT_FOUND = "TOOL_NOT_FOUND"
@@ -18,11 +16,10 @@ class ErrorCode(str, Enum):
 
 class MCPError(Exception):
     """MCP 错误基类"""
-    
     def __init__(
-        self, 
-        code: str, 
-        message: str, 
+        self,
+        code: str,
+        message: str,
         details: Optional[Dict[str, Any]] = None,
         status_code: int = 500
     ):
@@ -31,7 +28,7 @@ class MCPError(Exception):
         self.details = details or {}
         self.status_code = status_code
         super().__init__(message)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
         return {
@@ -106,4 +103,4 @@ class DatabaseError(MCPError):
             message=message,
             details=details,
             status_code=500
-        ) 
+        )

@@ -1,19 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
+from fastapi.responses import JSONResponse
+import logging
+
 from app.db.database import get_db
 from app.db.models import Customer
 from app.schemas.customer import CustomerSchema, CustomerCreate, CustomerUpdate
 from app.config.options import CustomerSize
-import logging
-from fastapi.responses import JSONResponse
-import os
+
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 router = APIRouter()
+
 
 @router.get("/size-options/")
 async def get_size_options():
@@ -27,6 +30,7 @@ async def get_size_options():
             status_code=500,
             content={"detail": str(e)}
         )
+
 
 @router.post("/", response_model=CustomerSchema)
 async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
@@ -45,6 +49,7 @@ async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db
             content={"detail": str(e)}
         )
 
+
 @router.get("/", response_model=List[CustomerSchema])
 async def list_customers(db: Session = Depends(get_db)):
     """获取客户列表"""
@@ -57,6 +62,7 @@ async def list_customers(db: Session = Depends(get_db)):
             status_code=500,
             content={"detail": str(e)}
         )
+
 
 @router.get("/{customer_id}", response_model=CustomerSchema)
 async def get_customer(customer_id: int, db: Session = Depends(get_db)):
@@ -76,6 +82,7 @@ async def get_customer(customer_id: int, db: Session = Depends(get_db)):
             content={"detail": str(e)}
         )
 
+
 @router.put("/{customer_id}", response_model=CustomerSchema)
 async def update_customer(customer_id: int, customer_update: CustomerUpdate, db: Session = Depends(get_db)):
     """更新客户"""
@@ -86,10 +93,10 @@ async def update_customer(customer_id: int, customer_update: CustomerUpdate, db:
                 status_code=404,
                 content={"detail": "Customer not found"}
             )
-        
+
         for field, value in customer_update.dict(exclude_unset=True).items():
             setattr(db_customer, field, value)
-        
+
         db.commit()
         db.refresh(db_customer)
         return db_customer
@@ -101,6 +108,7 @@ async def update_customer(customer_id: int, customer_update: CustomerUpdate, db:
             content={"detail": str(e)}
         )
 
+
 @router.delete("/{customer_id}", response_model=CustomerSchema)
 async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     """删除客户"""
@@ -111,7 +119,7 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
                 status_code=404,
                 content={"detail": "Customer not found"}
             )
-        
+
         # 保存客户信息用于返回
         customer_data = {
             "id": db_customer.id,
@@ -121,7 +129,7 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
             "cargo_type": db_customer.cargo_type,
             "size": db_customer.size
         }
-        
+
         db.delete(db_customer)
         db.commit()
         return customer_data
@@ -131,4 +139,4 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}
-        ) 
+        )

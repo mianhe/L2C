@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import logging
 import os
+
 from app.db.database import init_db
 from app.api import customers
 from app.mcp.router import router as mcp_router
@@ -31,10 +32,12 @@ init_db()
 app.include_router(customers.router, prefix="/api/customers", tags=["customers"])
 app.include_router(mcp_router)
 
+
 @app.get("/info", response_class=HTMLResponse)
 async def info_page(request: Request):
     """信息页面，包含项目介绍和API文档"""
     return templates.TemplateResponse("info.html", {"request": request})
+
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -43,4 +46,4 @@ async def home(request: Request):
         return templates.TemplateResponse("index.html", {"request": request})
     except Exception as e:
         logger.error(f"Error rendering customer management page: {e}")
-        return "Error loading customer management page" 
+        return "Error loading customer management page"

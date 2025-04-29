@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from .protocol import MCPProtocol
 from .service import MCPService
-from .errors import MCPError, ErrorCode, ToolNotFoundError
+from .errors import MCPError, ToolNotFoundError
+
 
 router = APIRouter(prefix="/api/mcp", tags=["mcp"])
+
 
 @router.post("")
 async def handle_mcp_request(request: Request):
@@ -14,12 +16,12 @@ async def handle_mcp_request(request: Request):
         # 解析请求
         request_data = await request.json()
         parsed_request = MCPProtocol.parse_request(request_data)
-        
+
         # 获取工具名称和参数
         tool_name = parsed_request["tool"]
         parameters = parsed_request["parameters"]
         request_id = parsed_request["request_id"]
-        
+
         # 根据工具名称调用相应的服务方法
         if tool_name == "query":
             response = MCPService.query_customer(
@@ -41,12 +43,11 @@ async def handle_mcp_request(request: Request):
                     request_id
                 )
             )
-        
+
         # 格式化并返回响应
         return JSONResponse(
             content=MCPProtocol.format_response(response, request_id)
         )
-        
     except MCPError as e:
         # 处理已知的MCP错误
         return JSONResponse(
@@ -60,7 +61,7 @@ async def handle_mcp_request(request: Request):
             content=MCPProtocol.format_exception(e, request_id)
         )
 
-# 添加元数据端点
+
 @router.get("/metadata")
 async def get_metadata():
     """获取服务元数据"""
@@ -77,6 +78,7 @@ async def get_metadata():
             content=MCPProtocol.format_exception(e, None)
         )
 
+
 @router.get("/tools/{tool_name}")
 async def get_tool_schema(tool_name: str):
     """获取指定工具的详细模式"""
@@ -89,6 +91,6 @@ async def get_tool_schema(tool_name: str):
         )
     except Exception as e:
         return JSONResponse(
-            status_code=500, 
+            status_code=500,
             content=MCPProtocol.format_exception(e, None)
-        ) 
+        )

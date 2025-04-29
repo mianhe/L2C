@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from app.config.options import CustomerSize
 
@@ -15,15 +16,15 @@ class CustomerCreate(CustomerBase):
 
 
 class CustomerUpdate(BaseModel):
-    name: str | None = None
-    city: str | None = None
-    industry: str | None = None
-    cargo_type: str | None = None
-    size: CustomerSize | None = None
+    name: Optional[str] = None
+    city: Optional[str] = None
+    industry: Optional[str] = None
+    cargo_type: Optional[str] = None
+    size: Optional[CustomerSize] = None
 
 
 class CustomerSchema(CustomerBase):
     id: int
 
     class Config:
-        from_attributes = True 
+        from_attributes = True

@@ -9,96 +9,103 @@ import sys
 import inspect
 import argparse
 import importlib.util
-import markdown
+
+# 导入但未使用的模块，暂时注释掉
+# import markdown
+
 
 class TestDocGenerator:
     """测试文档生成器"""
-    
+
     def __init__(self, module_path):
         """初始化生成器"""
         self.module_path = module_path
         self.module_name = os.path.basename(module_path).replace('.py', '')
-    
+
     def extract_docstrings(self):
         """提取测试模块中的所有 docstring"""
         # 加载模块
         spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # 提取文档
         docs = {
             "module_name": self.module_name,
             "module_doc": inspect.getdoc(module) or "",
             "classes": []
         }
-        
+
         # 查找所有测试类
         for name, obj in inspect.getmembers(module):
             # 确保只包含直接定义在模块中的类，而不是导入的类
-            if (inspect.isclass(obj) and 
-                name.startswith("Test") and 
-                obj.__module__ == self.module_name):
-                
-                class_info = {
-                    "name": name,
-                    "doc": inspect.getdoc(obj) or "",
-                    "methods": []
-                }
-                
-                # 查找所有测试方法，并按照源代码中的顺序排序
-                methods = []
-                for method_name, method_obj in inspect.getmembers(obj):
-                    if inspect.isfunction(method_obj) and method_name.startswith("test_"):
-                        # 确保方法是直接定义在类中的
-                        if method_obj.__module__ == self.module_name:
-                            method_info = {
-                                "name": method_name,
-                                "doc": inspect.getdoc(method_obj) or "",
-                                "source": inspect.getsource(method_obj),
-                                "line_number": inspect.getsourcelines(method_obj)[1]
-                            }
-                            methods.append(method_info)
-                
-                # 按源码行号排序
-                class_info["methods"] = sorted(methods, key=lambda x: x["line_number"])
+            if (inspect.isclass(obj)
+                    and name.startswith("Test")
+                    and obj.__module__ == self.module_name):
+                class_info = self._extract_class_info(obj, name)
                 docs["classes"].append(class_info)
-        
+
         return docs
-    
+
+    def _extract_class_info(self, obj, name):
+        """提取类信息的辅助方法"""
+        class_info = {
+            "name": name,
+            "doc": inspect.getdoc(obj) or "",
+            "methods": []
+        }
+
+        # 查找所有测试方法，并按照源代码中的顺序排序
+        methods = []
+        for method_name, method_obj in inspect.getmembers(obj):
+            if (inspect.isfunction(method_obj)
+                    and method_name.startswith("test_")
+                    and method_obj.__module__ == self.module_name):
+                method_info = {
+                    "name": method_name,
+                    "doc": inspect.getdoc(method_obj) or "",
+                    "source": inspect.getsource(method_obj),
+                    "line_number": inspect.getsourcelines(method_obj)[1]
+                }
+                methods.append(method_info)
+
+        # 按源码行号排序
+        class_info["methods"] = sorted(methods, key=lambda x: x["line_number"])
+        return class_info
+
     def extract_code_examples(self, source):
         """从测试源码中提取请求示例和响应示例"""
         examples = {}
-        
+
         # 提取请求示例
         request_pattern = r'# 构造请求.*?\n(.*?)# 发送请求'
         request_matches = re.findall(request_pattern, source, re.DOTALL)
         if request_matches:
             examples["request"] = request_matches[0].strip()
-        
+
         # 提取响应示例
         response_pattern = r'# 验证响应.*?\n(.*?)(?=\n\s*(?:#|$))'
         response_matches = re.findall(response_pattern, source, re.DOTALL)
         if response_matches:
             examples["response"] = response_matches[0].strip()
-        
+
         return examples
-    
+
     def generate_markdown(self):
         """生成 Markdown 格式的文档"""
         docs = self.extract_docstrings()
         md = f"# {docs['module_name']} 测试文档\n\n"
-        
+
         if docs["module_doc"]:
             md += f"{docs['module_doc']}\n\n"
-        
+
         # 如果没有找到测试类，显示警告
         if not docs["classes"]:
             md += "> **警告**: 在文件中未找到测试类。请确保测试类是直接定义在此文件中，而不是导入的。\n\n"
             return md
-            
+
         md += "## 目录\n\n"
-        
+
         # 生成目录 - 修改后的目录结构
         for cls in docs["classes"]:
             md += f"- [{cls['name']}](#{cls['name'].lower()})\n"
@@ -106,114 +113,116 @@ class TestDocGenerator:
                 for method in cls["methods"]:
                     # 使用缩进表示层级关系，测试方法降低一级
                     md += f"  - [{method['name']}](#{method['name'].lower()})\n"
-        
+
         md += "\n---\n\n"
-        
+
         # 生成详细内容
         for cls in docs["classes"]:
             md += f"## {cls['name']}\n\n"
-            
             if cls["doc"]:
                 md += f"{cls['doc']}\n\n"
-            
+
             # 如果没有测试方法，显示提示
             if not cls["methods"]:
                 md += "> 此测试类中未找到测试方法。\n\n"
                 continue
-                
+
             for method in cls["methods"]:
                 md += f"### {method['name']}\n\n"
-                
                 if method["doc"]:
                     md += f"{method['doc']}\n\n"
-                
+
                 # 提取示例代码
                 examples = self.extract_code_examples(method["source"])
                 if "request" in examples:
                     md += "**请求示例:**\n\n```python\n"
                     md += examples["request"]
                     md += "\n```\n\n"
-                
                 if "response" in examples:
                     md += "**响应断言:**\n\n```python\n"
                     md += examples["response"]
                     md += "\n```\n\n"
-            
+
             md += "---\n\n"
-        
+
         return md
-    
+
     def generate_html(self):
         """生成 HTML 格式的文档，直接构建定制的HTML而不依赖markdown转换"""
         docs = self.extract_docstrings()
-        
+
         # 手动构建HTML内容，确保目录结构正确
         content = f"""
         <h1>{docs['module_name']} 测试文档</h1>
-        
         {f'<p>{docs["module_doc"]}</p>' if docs["module_doc"] else ''}
-        
         <h2>目录</h2>
-        
         <div class="toc-container">
         """
-        
+
         # 手动构建目录，确保层次结构
         if not docs["classes"]:
-            content += '<p class="warning">警告: 在文件中未找到测试类。请确保测试类是直接定义在此文件中，而不是导入的。</p>'
+            content += (
+                '<p class="warning">警告: 在文件中未找到测试类。'
+                '请确保测试类是直接定义在此文件中，而不是导入的。</p>'
+            )
         else:
             content += '<ul class="toc-root">'
             for cls in docs["classes"]:
                 cls_id = cls["name"].lower()
-                content += f'<li class="toc-class"><a href="#{cls_id}"><span class="class-icon">📋</span> {cls["name"]}</a>'
-                
+                content += (
+                    f'<li class="toc-class"><a href="#{cls_id}">'
+                    f'<span class="class-icon">📋</span> {cls["name"]}</a>'
+                )
                 if cls["methods"]:
                     content += '<ul>'
                     for method in cls["methods"]:
                         method_id = method["name"].lower()
-                        content += f'<li class="toc-method"><a href="#{method_id}"><span class="method-icon">✓</span> {method["name"]}</a></li>'
+                        content += (
+                            f'<li class="toc-method"><a href="#{method_id}">'
+                            f'<span class="method-icon">✓</span> {method["name"]}</a></li>'
+                        )
                     content += '</ul>'
-                
                 content += '</li>'
             content += '</ul>'
-        
+
         content += '</div><hr>'
-        
+
         # 生成详细内容部分
         for cls in docs["classes"]:
             cls_id = cls["name"].lower()
             content += f'<h2 id="{cls_id}"><span class="class-icon">📋</span> {cls["name"]}</h2>'
-            
             if cls["doc"]:
                 content += f'<p>{cls["doc"]}</p>'
-            
+
             if not cls["methods"]:
                 content += '<p class="warning">此测试类中未找到测试方法。</p>'
                 continue
-            
+
             for method in cls["methods"]:
                 method_id = method["name"].lower()
                 content += f'<h3 id="{method_id}"><span class="method-icon">✓</span> {method["name"]}</h3>'
-                
                 if method["doc"]:
                     content += f'<p>{method["doc"]}</p>'
-                
+
                 # 提取并添加代码示例
                 examples = self.extract_code_examples(method["source"])
                 if "request" in examples:
-                    content += '<p><strong>请求示例:</strong></p>'
-                    content += '<pre><code class="python">'
+                    content += (
+                        '<p><strong>请求示例:</strong></p>'
+                        '<pre><code class="python">'
+                    )
                     content += examples["request"].replace("<", "&lt;").replace(">", "&gt;")
                     content += '</code></pre>'
-                
                 if "response" in examples:
-                    content += '<p><strong>响应断言:</strong></p>'
-                    content += '<pre><code class="python">'
+                    content += (
+                        '<p><strong>响应断言:</strong></p>'
+                        '<pre><code class="python">'
+                    )
                     content += examples["response"].replace("<", "&lt;").replace(">", "&gt;")
                     content += '</code></pre>'
-            
+
             content += '<hr>'
-        
+
         # 生成完整HTML
         html = f"""<!DOCTYPE html>
 <html>
@@ -248,170 +257,99 @@ class TestDocGenerator:
             overflow: auto;
             line-height: 1.45;
         }}
-        pre code {{
-            background-color: transparent;
-            padding: 0;
-        }}
         code {{
             padding: 0.2em 0.4em;
         }}
-        hr {{
-            height: 0.25em;
-            padding: 0;
-            margin: 24px 0;
-            background-color: #e1e4e8;
-            border: 0;
-        }}
-        .method {{
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-        }}
         .warning {{
-            background-color: #fff3cd;
             color: #856404;
-            padding: 10px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 12px;
             border-radius: 4px;
-            border-left: 4px solid #ffeeba;
-            margin-bottom: 20px;
+            margin: 12px 0;
         }}
-        
-        /* 目录容器样式 */
         .toc-container {{
-            background-color: #f6f8fa;
-            border-radius: 6px;
+            margin: 20px 0;
             padding: 15px;
-            margin-bottom: 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            background-color: #f6f8fa;
         }}
-        
-        /* 目录样式 */
         .toc-root {{
             list-style-type: none;
-            padding-left: 5px;
-            margin: 0;
-            border-left: 3px solid #e1e4e8;
+            padding-left: 0;
         }}
-        
-        /* 测试类条目样式 */
         .toc-class {{
             margin: 8px 0;
-            padding: 3px 0;
         }}
-        .toc-class > a {{
-            color: #24292e;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1em;
-            display: block;
-            padding: 4px 8px;
-            border-radius: 3px;
-            transition: background-color 0.2s;
-        }}
-        .toc-class > a:hover {{
-            background-color: #e1e4e8;
-            text-decoration: underline;
-        }}
-        .class-icon {{
-            color: #0366d6;
-            margin-right: 6px;
-        }}
-        
-        /* 测试方法目录项样式 */
         .toc-class > ul {{
             list-style-type: none;
-            padding-left: 24px;
-            margin: 5px 0 5px 0;
-            border-left: 2px solid #e1e4e8;
+            padding-left: 20px;
         }}
         .toc-method {{
             margin: 4px 0;
         }}
-        .toc-method > a {{
-            color: #586069;
-            text-decoration: none;
-            font-size: 0.95em;
-            display: block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            transition: background-color 0.2s;
+        .class-icon, .method-icon {{
+            margin-right: 5px;
         }}
-        .toc-method > a:hover {{
-            background-color: #e1e4e8;
+        a {{
             color: #0366d6;
+            text-decoration: none;
+        }}
+        a:hover {{
             text-decoration: underline;
         }}
-        .method-icon {{
-            color: #28a745;
-            margin-right: 4px;
-        }}
-        
-        /* 测试类标题样式 */
-        h2 .class-icon {{
-            margin-right: 8px;
-        }}
-        
-        /* 测试方法标题样式 */
-        h3 .method-icon {{
-            margin-right: 8px;
-            color: #28a745;
+        hr {{
+            border: 0;
+            border-top: 1px solid #eaecef;
+            margin: 20px 0;
         }}
     </style>
 </head>
 <body>
     {content}
 </body>
-</html>"""
-        
+</html>
+"""
         return html
 
 
 def main():
     """主函数"""
-    parser = argparse.ArgumentParser(description='从测试文件中提取 docstring 并生成测试文档')
-    parser.add_argument('file_path', help='测试文件路径')
-    parser.add_argument('--html', action='store_true', help='生成 HTML 格式文档')
-    parser.add_argument('--output', '-o', help='输出文件路径')
-    parser.add_argument('--verbose', '-v', action='store_true', help='显示详细信息')
-    
+    parser = argparse.ArgumentParser(description="从测试文件生成文档")
+    parser.add_argument("test_file", help="测试文件路径")
+    parser.add_argument("--html", action="store_true", help="生成HTML格式文档")
+    parser.add_argument("--output", help="输出文件路径")
+
     args = parser.parse_args()
-    
-    if not os.path.exists(args.file_path):
-        print(f"错误: 文件 {args.file_path} 不存在")
+
+    # 检查文件是否存在
+    if not os.path.exists(args.test_file):
+        print(f"错误: 文件 '{args.test_file}' 不存在")
         sys.exit(1)
-    
+
     # 生成文档
-    generator = TestDocGenerator(args.file_path)
-    
+    generator = TestDocGenerator(args.test_file)
     if args.html:
         content = generator.generate_html()
-        ext = ".html"
+        default_ext = ".html"
     else:
         content = generator.generate_markdown()
-        ext = ".md"
-    
-    # 确定输出文件名
+        default_ext = ".md"
+
+    # 确定输出路径
     if args.output:
         output_file = args.output
     else:
-        base_name = os.path.basename(args.file_path).replace('.py', '')
-        output_file = f"{base_name}_documentation{ext}"
-    
+        base_name = os.path.splitext(args.test_file)[0]
+        output_file = f"{base_name}_doc{default_ext}"
+
     # 写入文件
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(content)
-    
+
     print(f"文档已生成: {output_file}")
-    
-    if args.verbose:
-        docs = generator.extract_docstrings()
-        print(f"文件中发现的测试类: {[cls['name'] for cls in docs['classes']]}")
-        for cls in docs['classes']:
-            print(f"  {cls['name']} 类中的测试方法: {len(cls['methods'])}")
-    
-    if args.html:
-        print(f"提示: 在浏览器中打开 {output_file} 查看格式化的文档")
 
 
 if __name__ == "__main__":
-    main() 
+    main()
