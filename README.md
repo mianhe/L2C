@@ -1,4 +1,5 @@
 # L2C (Leads to Cash) System
+![Python Tests](https://github.com/mianhe/L2C/actions/workflows/python-test.yml/badge.svg)
 
 一个用于物流软件销售过程的客户管理系统，提供客户信息查询和机器控制协议(MCP)接口。
 
