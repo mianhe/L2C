@@ -1,9 +1,6 @@
 from typing import Dict, Any, Optional, List
 from .protocol import ServiceMetadata, ToolSchema, ParameterSchema
-from .errors import (
-    CustomerNotFoundError, ToolNotFoundError, InvalidParametersError,
-    DatabaseError, InternalServerError
-)
+from .errors import CustomerNotFoundError, ToolNotFoundError, InvalidParametersError, DatabaseError, InternalServerError
 from app.db.database import get_db
 from app.db.models import Customer
 
@@ -21,17 +18,13 @@ class MCPService:
                 name="query",
                 description="查询客户信息",
                 parameters={
-                    "customer_id": ParameterSchema(
-                        type="integer",
-                        description="客户ID",
-                        required=True
-                    ),
+                    "customer_id": ParameterSchema(type="integer", description="客户ID", required=True),
                     "fields": ParameterSchema(
                         type="array",
                         description="需要返回的字段列表",
                         required=False,
-                        default=["name", "city", "industry"]
-                    )
+                        default=["name", "city", "industry"],
+                    ),
                 },
                 returns={
                     "type": "object",
@@ -42,27 +35,23 @@ class MCPService:
                                 "id": {"type": "integer"},
                                 "name": {"type": "string"},
                                 "city": {"type": "string"},
-                                "industry": {"type": "string"}
-                            }
+                                "industry": {"type": "string"},
+                            },
                         }
-                    }
-                }
+                    },
+                },
             ),
             ToolSchema(
                 name="query_by_name",
                 description="按名称查询客户信息",
                 parameters={
-                    "customer_name": ParameterSchema(
-                        type="string",
-                        description="客户名称",
-                        required=True
-                    ),
+                    "customer_name": ParameterSchema(type="string", description="客户名称", required=True),
                     "fields": ParameterSchema(
                         type="array",
                         description="需要返回的字段列表",
                         required=False,
-                        default=["name", "city", "industry"]
-                    )
+                        default=["name", "city", "industry"],
+                    ),
                 },
                 returns={
                     "type": "object",
@@ -73,11 +62,11 @@ class MCPService:
                                 "id": {"type": "integer"},
                                 "name": {"type": "string"},
                                 "city": {"type": "string"},
-                                "industry": {"type": "string"}
-                            }
+                                "industry": {"type": "string"},
+                            },
                         }
-                    }
-                }
+                    },
+                },
             ),
             ToolSchema(
                 name="list_tools",
@@ -87,15 +76,12 @@ class MCPService:
                     "type": "array",
                     "items": {
                         "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "description": {"type": "string"}
-                        }
-                    }
-                }
-            )
+                        "properties": {"name": {"type": "string"}, "description": {"type": "string"}},
+                    },
+                },
+            ),
         ],
-        capabilities=["customer_query", "customer_management"]
+        capabilities=["customer_query", "customer_management"],
     )
 
     @staticmethod
@@ -120,10 +106,7 @@ class MCPService:
         try:
             # 验证参数
             if not isinstance(customer_id, int) or customer_id <= 0:
-                raise InvalidParametersError(
-                    "客户ID必须是正整数",
-                    {"customer_id": customer_id}
-                )
+                raise InvalidParametersError("客户ID必须是正整数", {"customer_id": customer_id})
 
             # 获取数据库会话
             db = next(get_db())
@@ -142,7 +125,7 @@ class MCPService:
                     "city": customer_db.city,
                     "industry": customer_db.industry,
                     "cargo_type": customer_db.cargo_type,
-                    "size": str(customer_db.size)
+                    "size": str(customer_db.size),
                 }
 
                 # 如果指定了字段，只返回这些字段
@@ -155,7 +138,7 @@ class MCPService:
                 return {"customer": result}
             finally:
                 # 确保会话关闭（非测试环境下）
-                if getattr(db, '_is_test_db', False) is False:
+                if getattr(db, "_is_test_db", False) is False:
                     db.close()
         except CustomerNotFoundError:
             # 直接抛出，不需要额外包装
@@ -175,18 +158,13 @@ class MCPService:
         try:
             # 验证参数
             if not customer_name or not isinstance(customer_name, str):
-                raise InvalidParametersError(
-                    "客户名称不能为空",
-                    {"customer_name": customer_name}
-                )
+                raise InvalidParametersError("客户名称不能为空", {"customer_name": customer_name})
 
             # 获取数据库会话
             db = next(get_db())
             try:
                 # 从数据库查询客户信息（支持模糊匹配）
-                customer_db = db.query(Customer).filter(
-                    Customer.name == customer_name
-                ).first()
+                customer_db = db.query(Customer).filter(Customer.name == customer_name).first()
 
                 # 如果客户不存在，抛出异常
                 if not customer_db:
@@ -199,7 +177,7 @@ class MCPService:
                     "city": customer_db.city,
                     "industry": customer_db.industry,
                     "cargo_type": customer_db.cargo_type,
-                    "size": str(customer_db.size)
+                    "size": str(customer_db.size),
                 }
 
                 # 如果指定了字段，只返回这些字段
@@ -212,7 +190,7 @@ class MCPService:
                 return {"customer": result}
             finally:
                 # 确保会话关闭（非测试环境下）
-                if getattr(db, '_is_test_db', False) is False:
+                if getattr(db, "_is_test_db", False) is False:
                     db.close()
         except CustomerNotFoundError:
             # 直接抛出，不需要额外包装
@@ -232,10 +210,7 @@ class MCPService:
         try:
             tools = []
             for tool in MCPService.SERVICE_METADATA.tools:
-                tools.append({
-                    "name": tool.name,
-                    "description": tool.description
-                })
+                tools.append({"name": tool.name, "description": tool.description})
             return {"tools": tools}
         except Exception as e:
             raise InternalServerError(f"获取工具列表失败: {str(e)}")

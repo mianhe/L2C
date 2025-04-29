@@ -11,7 +11,4 @@ class CustomerSize(str, Enum):
     @classmethod
     def get_options(cls) -> List[Dict[str, str]]:
         """获取所有选项，格式为前端需要的格式"""
-        return [
-            {"value": size.name, "label": size.name.replace("_", " ").title()}
-            for size in cls
-        ]
+        return [{"value": size.name, "label": size.name.replace("_", " ").title()} for size in cls]

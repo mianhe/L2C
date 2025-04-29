@@ -26,10 +26,7 @@ async def get_size_options():
         return {"options": options}
     except Exception as e:
         logger.error(f"Error in get_size_options: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e)}
-        )
+        return JSONResponse(status_code=500, content={"detail": str(e)})
 
 
 @router.post("/", response_model=CustomerSchema)
@@ -44,10 +41,7 @@ async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db
     except Exception as e:
         logger.error(f"Error creating customer: {str(e)}")
         db.rollback()
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e)}
-        )
+        return JSONResponse(status_code=500, content={"detail": str(e)})
 
 
 @router.get("/", response_model=List[CustomerSchema])
@@ -58,10 +52,7 @@ async def list_customers(db: Session = Depends(get_db)):
         return customers
     except Exception as e:
         logger.error(f"Error listing customers: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e)}
-        )
+        return JSONResponse(status_code=500, content={"detail": str(e)})
 
 
 @router.get("/{customer_id}", response_model=CustomerSchema)
@@ -70,17 +61,11 @@ async def get_customer(customer_id: int, db: Session = Depends(get_db)):
     try:
         customer = db.query(Customer).filter(Customer.id == customer_id).first()
         if customer is None:
-            return JSONResponse(
-                status_code=404,
-                content={"detail": "Customer not found"}
-            )
+            return JSONResponse(status_code=404, content={"detail": "Customer not found"})
         return customer
     except Exception as e:
         logger.error(f"Error getting customer: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e)}
-        )
+        return JSONResponse(status_code=500, content={"detail": str(e)})
 
 
 @router.put("/{customer_id}", response_model=CustomerSchema)
@@ -89,10 +74,7 @@ async def update_customer(customer_id: int, customer_update: CustomerUpdate, db:
     try:
         db_customer = db.query(Customer).filter(Customer.id == customer_id).first()
         if db_customer is None:
-            return JSONResponse(
-                status_code=404,
-                content={"detail": "Customer not found"}
-            )
+            return JSONResponse(status_code=404, content={"detail": "Customer not found"})
 
         for field, value in customer_update.dict(exclude_unset=True).items():
             setattr(db_customer, field, value)
@@ -103,10 +85,7 @@ async def update_customer(customer_id: int, customer_update: CustomerUpdate, db:
     except Exception as e:
         logger.error(f"Error updating customer: {str(e)}")
         db.rollback()
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e)}
-        )
+        return JSONResponse(status_code=500, content={"detail": str(e)})
 
 
 @router.delete("/{customer_id}", response_model=CustomerSchema)
@@ -115,10 +94,7 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     try:
         db_customer = db.query(Customer).filter(Customer.id == customer_id).first()
         if db_customer is None:
-            return JSONResponse(
-                status_code=404,
-                content={"detail": "Customer not found"}
-            )
+            return JSONResponse(status_code=404, content={"detail": "Customer not found"})
 
         # 保存客户信息用于返回
         customer_data = {
@@ -127,7 +103,7 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
             "city": db_customer.city,
             "industry": db_customer.industry,
             "cargo_type": db_customer.cargo_type,
-            "size": db_customer.size
+            "size": db_customer.size,
         }
 
         db.delete(db_customer)
@@ -136,7 +112,4 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error deleting customer: {str(e)}")
         db.rollback()
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e)}
-        )
+        return JSONResponse(status_code=500, content={"detail": str(e)})

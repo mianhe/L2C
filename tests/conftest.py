@@ -79,7 +79,7 @@ def test_customer(db_session):
         city="Test City",
         industry="Test Industry",
         cargo_type="Test Cargo",
-        size=CustomerSize.SMALL
+        size=CustomerSize.SMALL,
     )
     db_session.add(customer)
     db_session.commit()

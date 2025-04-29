@@ -26,11 +26,7 @@ class TestMCPMetaInformation:
     def test_list_tools_endpoint_should_return_available_tools(self, client):
         """验证工具列表端点返回所有可用工具"""
         # 构造请求
-        request_data = {
-            "tool": "list_tools",
-            "parameters": {},
-            "request_id": "test-123"
-        }
+        request_data = {"tool": "list_tools", "parameters": {}, "request_id": "test-123"}
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
         # 验证响应
@@ -106,11 +102,7 @@ class TestMCPQueryById:
         # 使用test_customer夹具创建的客户数据
         customer_id = test_customer.id
         # 构造请求
-        request_data = {
-            "tool": "query",
-            "parameters": {"customer_id": customer_id},
-            "request_id": "test-real-123"
-        }
+        request_data = {"tool": "query", "parameters": {"customer_id": customer_id}, "request_id": "test-real-123"}
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
         # 验证响应
@@ -130,11 +122,8 @@ class TestMCPQueryById:
         # 构造请求 - 只获取城市信息
         request_data = {
             "tool": "query",
-            "parameters": {
-                "customer_id": customer_id,
-                "fields": ["city"]
-            },
-            "request_id": "test-filter-123"
+            "parameters": {"customer_id": customer_id, "fields": ["city"]},
+            "request_id": "test-filter-123",
         }
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
@@ -157,7 +146,7 @@ class TestMCPQueryById:
         request_data = {
             "tool": "query",
             "parameters": {"customer_id": non_existent_id},
-            "request_id": "test-not-found-123"
+            "request_id": "test-not-found-123",
         }
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
@@ -172,11 +161,7 @@ class TestMCPQueryById:
     def test_query_with_invalid_id_should_return_error(self, client):
         """验证使用无效的客户ID（如负数）时返回参数错误"""
         # 构造请求 - 使用无效的客户ID
-        request_data = {
-            "tool": "query",
-            "parameters": {"customer_id": -1},
-            "request_id": "test-invalid-123"
-        }
+        request_data = {"tool": "query", "parameters": {"customer_id": -1}, "request_id": "test-invalid-123"}
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
         # 验证响应
@@ -196,7 +181,7 @@ class TestMCPQueryById:
                 city=f"City {i+1}",
                 industry=f"Industry {i+1}",
                 cargo_type=f"Cargo {i+1}",
-                size=CustomerSize.MEDIUM
+                size=CustomerSize.MEDIUM,
             )
             db_session.add(customer)
             customers.append(customer)
@@ -204,11 +189,7 @@ class TestMCPQueryById:
         # 查询第二个客户
         customer_id = customers[1].id
         # 构造请求
-        request_data = {
-            "tool": "query",
-            "parameters": {"customer_id": customer_id},
-            "request_id": "test-multi-123"
-        }
+        request_data = {"tool": "query", "parameters": {"customer_id": customer_id}, "request_id": "test-multi-123"}
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
         # 验证响应
@@ -233,7 +214,7 @@ class TestMCPQueryByName:
         request_data = {
             "tool": "query_by_name",
             "parameters": {"customer_name": customer_name},
-            "request_id": "test-name-123"
+            "request_id": "test-name-123",
         }
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
@@ -254,11 +235,8 @@ class TestMCPQueryByName:
         # 构造请求 - 只获取城市信息
         request_data = {
             "tool": "query_by_name",
-            "parameters": {
-                "customer_name": customer_name,
-                "fields": ["city"]
-            },
-            "request_id": "test-name-filter-123"
+            "parameters": {"customer_name": customer_name, "fields": ["city"]},
+            "request_id": "test-name-filter-123",
         }
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
@@ -282,7 +260,7 @@ class TestMCPQueryByName:
         request_data = {
             "tool": "query_by_name",
             "parameters": {"customer_name": non_existent_name},
-            "request_id": "test-name-not-found-123"
+            "request_id": "test-name-not-found-123",
         }
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
@@ -300,7 +278,7 @@ class TestMCPQueryByName:
         request_data = {
             "tool": "query_by_name",
             "parameters": {"customer_name": ""},
-            "request_id": "test-empty-name-123"
+            "request_id": "test-empty-name-123",
         }
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
@@ -321,11 +299,7 @@ class TestMCPErrorHandling:
     def test_invalid_tool_should_return_tool_not_found_error(self, client):
         """验证使用不存在的工具名称时返回工具未找到错误"""
         # 构造请求 - 使用不存在的工具名称
-        request_data = {
-            "tool": "invalid_tool",
-            "parameters": {},
-            "request_id": "test-invalid-tool-123"
-        }
+        request_data = {"tool": "invalid_tool", "parameters": {}, "request_id": "test-invalid-tool-123"}
         # 发送请求
         response = client.post("/api/mcp", json=request_data)
         # 验证响应

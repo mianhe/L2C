@@ -13,7 +13,7 @@ class MCPClient:
         参数:
             server_url (str): MCP服务器URL，如 http://localhost:8000
         """
-        self.server_url = server_url.rstrip('/')
+        self.server_url = server_url.rstrip("/")
         self.api_endpoint = f"{self.server_url}/api/mcp"
 
     def _generate_request_id(self) -> str:
@@ -34,16 +34,9 @@ class MCPClient:
             Exception: 如果API调用失败
         """
         request_id = self._generate_request_id()
-        request_data = {
-            "tool": tool,
-            "parameters": parameters or {},
-            "request_id": request_id
-        }
+        request_data = {"tool": tool, "parameters": parameters or {}, "request_id": request_id}
 
-        response = requests.post(
-            self.api_endpoint,
-            json=request_data
-        )
+        response = requests.post(self.api_endpoint, json=request_data)
 
         response_data = response.json()
 
@@ -66,9 +59,7 @@ class MCPClient:
         返回:
             Dict[str, Any]: 客户信息
         """
-        parameters = {
-            "customer_id": customer_id
-        }
+        parameters = {"customer_id": customer_id}
         if fields:
             parameters["fields"] = fields
 
@@ -84,9 +75,7 @@ class MCPClient:
         返回:
             Dict[str, Any]: 客户信息
         """
-        parameters = {
-            "customer_name": customer_name
-        }
+        parameters = {"customer_name": customer_name}
         if fields:
             parameters["fields"] = fields
 

@@ -44,7 +44,7 @@ class TestCustomerCreate:
             "city": "Test City",
             "industry": "Test Industry",
             "cargo_type": "Test Cargo",
-            "size": "SMALL"
+            "size": "SMALL",
         }
         # 发送请求
         response = client.post("/api/customers/", json=customer_data)
@@ -70,7 +70,7 @@ class TestCustomerCreate:
             "city": "Test City",
             "industry": "Test Industry",
             "cargo_type": "Test Cargo",
-            "size": "INVALID_SIZE"
+            "size": "INVALID_SIZE",
         }
         response = client.post("/api/customers/", json=customer_data)
         assert response.status_code == 422, "使用无效的 size 值应返回 422 错误"
@@ -82,7 +82,7 @@ class TestCustomerCreate:
             # 缺少 city 字段
             "industry": "Test Industry",
             "cargo_type": "Test Cargo",
-            "size": "SMALL"
+            "size": "SMALL",
         }
         response = client.post("/api/customers/", json=customer_data)
         assert response.status_code == 422, "缺少必填字段应返回 422 错误"
@@ -96,19 +96,11 @@ class TestCustomerList:
         # 创建测试数据
         customers = [
             Customer(
-                name="Customer 1",
-                city="City 1",
-                industry="Industry 1",
-                cargo_type="Cargo 1",
-                size=CustomerSize.SMALL
+                name="Customer 1", city="City 1", industry="Industry 1", cargo_type="Cargo 1", size=CustomerSize.SMALL
             ),
             Customer(
-                name="Customer 2",
-                city="City 2",
-                industry="Industry 2",
-                cargo_type="Cargo 2",
-                size=CustomerSize.MEDIUM
-            )
+                name="Customer 2", city="City 2", industry="Industry 2", cargo_type="Cargo 2", size=CustomerSize.MEDIUM
+            ),
         ]
         for customer in customers:
             db_session.add(customer)
@@ -153,7 +145,7 @@ class TestCustomerDetail:
             city="Test City",
             industry="Test Industry",
             cargo_type="Test Cargo",
-            size=CustomerSize.SMALL
+            size=CustomerSize.SMALL,
         )
         db_session.add(customer)
         db_session.commit()
@@ -201,18 +193,21 @@ class TestCustomerUpdate:
             city="Test City",
             industry="Test Industry",
             cargo_type="Test Cargo",
-            size=CustomerSize.SMALL
+            size=CustomerSize.SMALL,
         )
         db_session.add(customer)
         db_session.commit()
         # 发送请求
-        response = client.put(f"/api/customers/{customer.id}", json={
-            "name": "Updated Customer",
-            "city": "Updated City",
-            "industry": "Updated Industry",
-            "cargo_type": "Updated Cargo",
-            "size": "MEDIUM"
-        })
+        response = client.put(
+            f"/api/customers/{customer.id}",
+            json={
+                "name": "Updated Customer",
+                "city": "Updated City",
+                "industry": "Updated Industry",
+                "cargo_type": "Updated Cargo",
+                "size": "MEDIUM",
+            },
+        )
         # 验证响应
         assert response.status_code == 200, "响应状态码应为 200"
         data = response.json()
@@ -227,13 +222,16 @@ class TestCustomerUpdate:
     def test_update_nonexistent_customer_should_fail(self, client):
         """测试更新不存在的客户信息应该失败"""
         # 发送请求
-        response = client.put("/api/customers/99999", json={
-            "name": "Updated Customer",
-            "city": "Updated City",
-            "industry": "Updated Industry",
-            "cargo_type": "Updated Cargo",
-            "size": "MEDIUM"
-        })
+        response = client.put(
+            "/api/customers/99999",
+            json={
+                "name": "Updated Customer",
+                "city": "Updated City",
+                "industry": "Updated Industry",
+                "cargo_type": "Updated Cargo",
+                "size": "MEDIUM",
+            },
+        )
         # 验证响应
         assert response.status_code == 404, "响应状态码应为 404"
         # 验证错误信息
@@ -253,7 +251,7 @@ class TestCustomerDelete:
             city="Test City",
             industry="Test Industry",
             cargo_type="Test Cargo",
-            size=CustomerSize.SMALL
+            size=CustomerSize.SMALL,
         )
         db_session.add(customer)
         db_session.commit()
@@ -269,24 +267,29 @@ class TestCustomerDelete:
 
 class TestCustomerListQuery:
     """测试客户列表的查询参数相关的接口"""
+
     pass
 
 
 class TestCustomerListSort:
     """测试客户列表的排序相关的接口"""
+
     pass
 
 
 class TestCustomerDataValidation:
     """测试客户数据的验证相关的接口"""
+
     pass
 
 
 class TestCustomerConcurrency:
     """测试客户并发操作相关的接口"""
+
     pass
 
 
 class TestCustomerPerformance:
     """测试客户操作性能相关的接口"""
+
     pass

@@ -20,7 +20,7 @@ class TestDocGenerator:
     def __init__(self, module_path):
         """初始化生成器"""
         self.module_path = module_path
-        self.module_name = os.path.basename(module_path).replace('.py', '')
+        self.module_name = os.path.basename(module_path).replace(".py", "")
 
     def extract_docstrings(self):
         """提取测试模块中的所有 docstring"""
@@ -30,18 +30,12 @@ class TestDocGenerator:
         spec.loader.exec_module(module)
 
         # 提取文档
-        docs = {
-            "module_name": self.module_name,
-            "module_doc": inspect.getdoc(module) or "",
-            "classes": []
-        }
+        docs = {"module_name": self.module_name, "module_doc": inspect.getdoc(module) or "", "classes": []}
 
         # 查找所有测试类
         for name, obj in inspect.getmembers(module):
             # 确保只包含直接定义在模块中的类，而不是导入的类
-            if (inspect.isclass(obj)
-                    and name.startswith("Test")
-                    and obj.__module__ == self.module_name):
+            if inspect.isclass(obj) and name.startswith("Test") and obj.__module__ == self.module_name:
                 class_info = self._extract_class_info(obj, name)
                 docs["classes"].append(class_info)
 
@@ -49,23 +43,21 @@ class TestDocGenerator:
 
     def _extract_class_info(self, obj, name):
         """提取类信息的辅助方法"""
-        class_info = {
-            "name": name,
-            "doc": inspect.getdoc(obj) or "",
-            "methods": []
-        }
+        class_info = {"name": name, "doc": inspect.getdoc(obj) or "", "methods": []}
 
         # 查找所有测试方法，并按照源代码中的顺序排序
         methods = []
         for method_name, method_obj in inspect.getmembers(obj):
-            if (inspect.isfunction(method_obj)
-                    and method_name.startswith("test_")
-                    and method_obj.__module__ == self.module_name):
+            if (
+                inspect.isfunction(method_obj)
+                and method_name.startswith("test_")
+                and method_obj.__module__ == self.module_name
+            ):
                 method_info = {
                     "name": method_name,
                     "doc": inspect.getdoc(method_obj) or "",
                     "source": inspect.getsource(method_obj),
-                    "line_number": inspect.getsourcelines(method_obj)[1]
+                    "line_number": inspect.getsourcelines(method_obj)[1],
                 }
                 methods.append(method_info)
 
@@ -78,13 +70,13 @@ class TestDocGenerator:
         examples = {}
 
         # 提取请求示例
-        request_pattern = r'# 构造请求.*?\n(.*?)# 发送请求'
+        request_pattern = r"# 构造请求.*?\n(.*?)# 发送请求"
         request_matches = re.findall(request_pattern, source, re.DOTALL)
         if request_matches:
             examples["request"] = request_matches[0].strip()
 
         # 提取响应示例
-        response_pattern = r'# 验证响应.*?\n(.*?)(?=\n\s*(?:#|$))'
+        response_pattern = r"# 验证响应.*?\n(.*?)(?=\n\s*(?:#|$))"
         response_matches = re.findall(response_pattern, source, re.DOTALL)
         if response_matches:
             examples["response"] = response_matches[0].strip()
@@ -162,8 +154,7 @@ class TestDocGenerator:
         # 手动构建目录，确保层次结构
         if not docs["classes"]:
             content += (
-                '<p class="warning">警告: 在文件中未找到测试类。'
-                '请确保测试类是直接定义在此文件中，而不是导入的。</p>'
+                '<p class="warning">警告: 在文件中未找到测试类。' "请确保测试类是直接定义在此文件中，而不是导入的。</p>"
             )
         else:
             content += '<ul class="toc-root">'
@@ -174,18 +165,18 @@ class TestDocGenerator:
                     f'<span class="class-icon">📋</span> {cls["name"]}</a>'
                 )
                 if cls["methods"]:
-                    content += '<ul>'
+                    content += "<ul>"
                     for method in cls["methods"]:
                         method_id = method["name"].lower()
                         content += (
                             f'<li class="toc-method"><a href="#{method_id}">'
                             f'<span class="method-icon">✓</span> {method["name"]}</a></li>'
                         )
-                    content += '</ul>'
-                content += '</li>'
-            content += '</ul>'
+                    content += "</ul>"
+                content += "</li>"
+            content += "</ul>"
 
-        content += '</div><hr>'
+        content += "</div><hr>"
 
         # 生成详细内容部分
         for cls in docs["classes"]:
@@ -207,21 +198,15 @@ class TestDocGenerator:
                 # 提取并添加代码示例
                 examples = self.extract_code_examples(method["source"])
                 if "request" in examples:
-                    content += (
-                        '<p><strong>请求示例:</strong></p>'
-                        '<pre><code class="python">'
-                    )
+                    content += "<p><strong>请求示例:</strong></p>" '<pre><code class="python">'
                     content += examples["request"].replace("<", "&lt;").replace(">", "&gt;")
-                    content += '</code></pre>'
+                    content += "</code></pre>"
                 if "response" in examples:
-                    content += (
-                        '<p><strong>响应断言:</strong></p>'
-                        '<pre><code class="python">'
-                    )
+                    content += "<p><strong>响应断言:</strong></p>" '<pre><code class="python">'
                     content += examples["response"].replace("<", "&lt;").replace(">", "&gt;")
-                    content += '</code></pre>'
+                    content += "</code></pre>"
 
-            content += '<hr>'
+            content += "<hr>"
 
         # 生成完整HTML
         html = f"""<!DOCTYPE html>

@@ -53,11 +53,7 @@ class TestMCPProtocol:
     def test_parse_request_success(self):
         """测试解析请求成功"""
         # 构造请求
-        request = {
-            "tool": "query",
-            "parameters": {"customer_id": 1},
-            "request_id": "test-123"
-        }
+        request = {"tool": "query", "parameters": {"customer_id": 1}, "request_id": "test-123"}
         # 解析请求
         result = MCPProtocol.parse_request(request)
         # 验证结果
@@ -68,10 +64,7 @@ class TestMCPProtocol:
     def test_parse_request_missing_tool(self):
         """测试解析缺少工具名称的请求"""
         # 构造请求
-        request = {
-            "parameters": {"customer_id": 1},
-            "request_id": "test-123"
-        }
+        request = {"parameters": {"customer_id": 1}, "request_id": "test-123"}
         # 解析请求，应该抛出异常
         with pytest.raises(Exception) as excinfo:
             MCPProtocol.parse_request(request)
