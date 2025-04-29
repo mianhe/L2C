@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from app.config.options import CustomerSize
+
 
 class CustomerBase(BaseModel):
     name: str
@@ -8,10 +9,21 @@ class CustomerBase(BaseModel):
     cargo_type: str
     size: CustomerSize
 
+
 class CustomerCreate(CustomerBase):
     pass
 
-class Customer(CustomerBase):
+
+class CustomerUpdate(BaseModel):
+    name: str | None = None
+    city: str | None = None
+    industry: str | None = None
+    cargo_type: str | None = None
+    size: CustomerSize | None = None
+
+
+class CustomerSchema(CustomerBase):
     id: int
 
-    model_config = ConfigDict(from_attributes=True) 
+    class Config:
+        from_attributes = True 

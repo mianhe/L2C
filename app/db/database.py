@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import logging
 import os
-from app.db.models import Base
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +17,7 @@ if is_testing:
     SQLALCHEMY_DATABASE_URL = "sqlite:///file:memdb?mode=memory&cache=shared&uri=true"
 else:
     # 生产环境使用文件数据库
-    SQLALCHEMY_DATABASE_URL = "sqlite:///./l2c.db"
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./app.db"
 
 # 创建数据库引擎
 engine = create_engine(
@@ -31,6 +31,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # 用于测试的会话实例
 _test_db = None
+
+Base = declarative_base()
 
 def init_db():
     """初始化数据库表结构"""

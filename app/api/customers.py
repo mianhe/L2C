@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
 from app.db.models import Customer
-from app.schemas.customer import CustomerCreate, Customer as CustomerSchema
+from app.schemas.customer import CustomerSchema, CustomerCreate, CustomerUpdate
 from app.config.options import CustomerSize
 import logging
 from fastapi.responses import JSONResponse
@@ -30,9 +30,9 @@ async def get_size_options():
 
 @router.post("/", response_model=CustomerSchema)
 async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
-    """创建新客户"""
+    """创建客户"""
     try:
-        db_customer = Customer(**customer.model_dump())
+        db_customer = Customer(**customer.dict())
         db.add(db_customer)
         db.commit()
         db.refresh(db_customer)
@@ -46,21 +46,21 @@ async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db
         )
 
 @router.get("/", response_model=List[CustomerSchema])
-async def read_customers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def list_customers(db: Session = Depends(get_db)):
     """获取客户列表"""
     try:
-        customers = db.query(Customer).offset(skip).limit(limit).all()
+        customers = db.query(Customer).all()
         return customers
     except Exception as e:
-        logger.error(f"Error reading customers: {str(e)}")
+        logger.error(f"Error listing customers: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}
         )
 
 @router.get("/{customer_id}", response_model=CustomerSchema)
-async def read_customer(customer_id: int, db: Session = Depends(get_db)):
-    """获取单个客户详情"""
+async def get_customer(customer_id: int, db: Session = Depends(get_db)):
+    """获取单个客户"""
     try:
         customer = db.query(Customer).filter(Customer.id == customer_id).first()
         if customer is None:
@@ -70,15 +70,15 @@ async def read_customer(customer_id: int, db: Session = Depends(get_db)):
             )
         return customer
     except Exception as e:
-        logger.error(f"Error reading customer: {str(e)}")
+        logger.error(f"Error getting customer: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}
         )
 
 @router.put("/{customer_id}", response_model=CustomerSchema)
-async def update_customer(customer_id: int, customer: CustomerCreate, db: Session = Depends(get_db)):
-    """更新客户信息"""
+async def update_customer(customer_id: int, customer_update: CustomerUpdate, db: Session = Depends(get_db)):
+    """更新客户"""
     try:
         db_customer = db.query(Customer).filter(Customer.id == customer_id).first()
         if db_customer is None:
@@ -87,8 +87,8 @@ async def update_customer(customer_id: int, customer: CustomerCreate, db: Sessio
                 content={"detail": "Customer not found"}
             )
         
-        for key, value in customer.model_dump().items():
-            setattr(db_customer, key, value)
+        for field, value in customer_update.dict(exclude_unset=True).items():
+            setattr(db_customer, field, value)
         
         db.commit()
         db.refresh(db_customer)

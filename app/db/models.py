@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum
-from sqlalchemy.orm import declarative_base
+from app.db.database import Base
 from app.config.options import CustomerSize
 
-Base = declarative_base()
 
 class Customer(Base):
     __tablename__ = "customers"
