@@ -47,3 +47,4 @@ async def home(request: Request):
     except Exception as e:
         logger.error(f"Error rendering customer management page: {e}")
         return "Error loading customer management page"
+
