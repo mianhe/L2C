@@ -1,5 +1,9 @@
 ---
-description:
+description: 生成或修改测试代码时使用
 globs:
 alwaysApply: false
 ---
+创建接口测试时，要做到：
+1. 为每个接口创建一个单独的测试类
+2. 每个测试只测试一个明确的场景，并在测试名称中明确包含测试的场景和目标，包含测什么、条件是什么，期望的结果。如：
+test_create_customer_with_valid_data_should_succeed，test_create_customer_with_missing_fields_should_fail等。

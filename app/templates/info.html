@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L2C - Project Info</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .tab-container {
+            margin: 20px 0;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #f1f1f1;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab-button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>L2C System Info</h1>
+        <nav>
+            <a href="/">Customer Management</a>
+            <a href="/info" class="active">Project Info</a>
+        </nav>
+    </header>
+    <main>
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="openTab(event, 'home-tab')">Project Introduction</button>
+                <button class="tab-button" onclick="openTab(event, 'api-tab')">API Documentation</button>
+            </div>
+
+            <div id="home-tab" class="tab-content active">
+                <h2>System Features</h2>
+                <ul>
+                    <li>Customer Information Management</li>
+                    <li>MCP Service</li>
+                </ul>
+
+                <h2>About L2C</h2>
+                <p>L2C is a system for managing customer information, providing CRUD operations for customer data and MCP service interfaces.</p>
+            </div>
+
+            <div id="api-tab" class="tab-content">
+                <h2>API Endpoints</h2>
+                <ul>
+                    <li>
+                        <h3>Customer Management</h3>
+                        <ul>
+                            <li>GET /api/customers - Get all customers</li>
+                            <li>GET /api/customers/{id} - Get specific customer</li>
+                            <li>POST /api/customers - Create new customer</li>
+                            <li>PUT /api/customers/{id} - Update customer</li>
+                            <li>DELETE /api/customers/{id} - Delete customer</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h3>MCP Service</h3>
+                        <ul>
+                            <li>POST /mcp - MCP query interface</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 L2C System</p>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all tab contents
+            var tabContents = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            // Remove active state from all tab buttons
+            var tabButtons = document.getElementsByClassName("tab-button");
+            for (var i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+
+            // Show current tab content and activate button
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>

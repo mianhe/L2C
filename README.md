@@ -43,6 +43,8 @@ uvicorn main:app --reload
 
 ### 代码质量和CI
 
+commit 之前运行:  pre-commit run --all-files
+
 本项目使用GitHub Actions进行持续集成，包括以下检查：
 
 - **单元测试**：使用pytest运行所有测试

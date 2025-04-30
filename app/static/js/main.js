@@ -25,22 +25,22 @@ function editCustomer(id) {
             modal.style.display = 'block';
 
             form.onsubmit = function(e) {
-                e.preventDefault();
+        e.preventDefault();
 
-                const formData = {
-                    name: document.getElementById('name').value,
-                    city: document.getElementById('city').value,
-                    industry: document.getElementById('industry').value,
-                    cargo_type: document.getElementById('cargoType').value,
-                    size: document.getElementById('size').value
-                };
+        const formData = {
+            name: document.getElementById('name').value,
+            city: document.getElementById('city').value,
+            industry: document.getElementById('industry').value,
+            cargo_type: document.getElementById('cargoType').value,
+            size: document.getElementById('size').value
+        };
 
                 fetch(`/api/customers/${id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -214,15 +214,15 @@ function initializeApp() {
         event.preventDefault();
         console.log('Form submitted');
 
-        const formData = {
-            name: document.getElementById('name').value,
-            city: document.getElementById('city').value,
-            industry: document.getElementById('industry').value,
-            cargo_type: document.getElementById('cargoType').value,
-            size: document.getElementById('size').value
-        };
+                const formData = {
+                    name: document.getElementById('name').value,
+                    city: document.getElementById('city').value,
+                    industry: document.getElementById('industry').value,
+                    cargo_type: document.getElementById('cargoType').value,
+                    size: document.getElementById('size').value
+                };
 
-        try {
+                try {
             const url = currentCustomerId
                 ? `/api/customers/${currentCustomerId}`
                 : '/api/customers';
@@ -232,11 +232,11 @@ function initializeApp() {
 
             const response = await fetchWithRetry(url, {
                 method: method,
-                headers: {
+                        headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+                        },
+                        body: JSON.stringify(formData)
+                    });
 
             if (!response.ok) {
                 const errorText = await response.text();
