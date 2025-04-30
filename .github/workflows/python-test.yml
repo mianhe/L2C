@@ -5,7 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  python-tests:
+    name: Python Tests
     runs-on: ubuntu-latest
     
     steps:
