@@ -3,4 +3,4 @@ max-line-length = 127
 max-complexity = 13
 exclude = .git,__pycache__,build,dist,.venv
 # 如果您想忽略特定的错误，可以在这里添加
-# ignore = C901 
+# ignore = C901

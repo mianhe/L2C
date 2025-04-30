@@ -1,6 +1,6 @@
-from typing import Dict, Callable
-from .protocol import ToolSchema
+from typing import Callable, Dict
 
+from .protocol import ToolSchema
 
 # 工具注册表
 _tools: Dict[str, Callable] = {}

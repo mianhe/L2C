@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Enum
-from app.db.database import Base
+from sqlalchemy import Column, Enum, Integer, String
+
 from app.config.options import CustomerSize
+from app.db.database import Base
 
 
 class Customer(Base):

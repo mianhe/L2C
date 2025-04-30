@@ -1,6 +1,6 @@
-from app.mcp.errors import ErrorCode
-from app.db.models import Customer
 from app.config.options import CustomerSize
+from app.db.models import Customer
+from app.mcp.errors import ErrorCode
 
 
 class TestMCPMetaInformation:

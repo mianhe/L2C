@@ -1,6 +1,6 @@
 [run]
 source = app
-omit = 
+omit =
     tests/*
     app/config/*
     */migrations/*
@@ -20,4 +20,4 @@ exclude_lines =
     pass
     raise ImportError
     except ImportError:
-    if TYPE_CHECKING: 
+    if TYPE_CHECKING:

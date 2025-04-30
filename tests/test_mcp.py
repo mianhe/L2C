@@ -1,8 +1,10 @@
-import pytest
-from app.mcp.service import MCPService
-from app.mcp.protocol import MCPProtocol
-from app.mcp.errors import InvalidParametersError, DatabaseError
 from unittest.mock import MagicMock
+
+import pytest
+
+from app.mcp.errors import DatabaseError, InvalidParametersError
+from app.mcp.protocol import MCPProtocol
+from app.mcp.service import MCPService
 
 
 class TestMCPEdgeCases:

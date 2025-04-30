@@ -7,7 +7,7 @@ let currentCustomerId = null;
 function editCustomer(id) {
     const modal = document.getElementById('addCustomerModal');
     const form = document.getElementById('customerForm');
-    
+
     fetch(`/api/customers/${id}`)
         .then(response => {
             if (!response.ok) {
@@ -21,12 +21,12 @@ function editCustomer(id) {
             document.getElementById('industry').value = customer.industry;
             document.getElementById('cargoType').value = customer.cargo_type;
             document.getElementById('size').value = customer.size;
-            
+
             modal.style.display = 'block';
-            
+
             form.onsubmit = function(e) {
                 e.preventDefault();
-                
+
                 const formData = {
                     name: document.getElementById('name').value,
                     city: document.getElementById('city').value,
@@ -34,7 +34,7 @@ function editCustomer(id) {
                     cargo_type: document.getElementById('cargoType').value,
                     size: document.getElementById('size').value
                 };
-                
+
                 fetch(`/api/customers/${id}`, {
                     method: 'PUT',
                     headers: {
@@ -95,7 +95,7 @@ function loadCustomers() {
         .then(customers => {
             const tableBody = document.getElementById('customerTableBody');
             tableBody.innerHTML = '';
-            
+
             customers.forEach(customer => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -120,22 +120,22 @@ function loadCustomers() {
 async function loadSizeOptions() {
     console.log('Loading size options');
     const sizeSelect = document.getElementById('size');
-    
+
     try {
         const response = await fetch('/api/customers/size-options/');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         if (!data.options) {
             throw new Error('Invalid response format');
         }
-        
-        sizeSelect.innerHTML = data.options.map(option => 
+
+        sizeSelect.innerHTML = data.options.map(option =>
             `<option value="${option.value}">${option.label}</option>`
         ).join('');
-        
+
         console.log('Size options loaded successfully');
     } catch (error) {
         console.error('Error loading size options:', error);
@@ -152,7 +152,7 @@ window.loadSizeOptions = loadSizeOptions;
 // Initialize the application
 function initializeApp() {
     console.log('=== Initializing application ===');
-    
+
     // Get DOM elements
     const modal = document.getElementById('addCustomerModal');
     const addBtn = document.getElementById('addCustomerBtn');
@@ -160,12 +160,12 @@ function initializeApp() {
     const form = document.getElementById('customerForm');
     const modalTitle = document.getElementById('modalTitle');
     const submitBtn = document.getElementById('submitBtn');
-    
+
     if (!modal || !addBtn || !closeBtn || !form || !modalTitle || !submitBtn) {
         console.error('Required DOM elements not found');
         return;
     }
-    
+
     // Event listeners for modal
     addBtn.addEventListener('click', () => {
         console.log('Opening modal for new customer');
@@ -174,13 +174,13 @@ function initializeApp() {
         form.reset();
         modal.style.display = 'block';
     });
-    
+
     closeBtn.addEventListener('click', () => {
         console.log('Closing modal');
         modal.style.display = 'none';
         form.reset();
     });
-    
+
     // Close modal when clicking outside
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
@@ -189,12 +189,12 @@ function initializeApp() {
             form.reset();
         }
     });
-    
+
     // Form submission handler
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         console.log('Form submitted');
-        
+
         const formData = {
             name: document.getElementById('name').value,
             city: document.getElementById('city').value,
@@ -202,14 +202,14 @@ function initializeApp() {
             cargo_type: document.getElementById('cargoType').value,
             size: document.getElementById('size').value
         };
-        
+
         try {
-            const url = currentCustomerId 
+            const url = currentCustomerId
                 ? `/api/customers/${currentCustomerId}`
                 : '/api/customers';
-            
+
             const method = currentCustomerId ? 'PUT' : 'POST';
-            
+
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -217,22 +217,22 @@ function initializeApp() {
                 },
                 body: JSON.stringify(formData)
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             console.log(`Customer ${currentCustomerId ? 'updated' : 'created'} successfully`);
             modal.style.display = 'none';
             form.reset();
             loadCustomers();
-            
+
         } catch (error) {
             console.error('Error submitting form:', error);
             alert('Error saving customer. Please try again.');
         }
     });
-    
+
     // Load initial data
     loadSizeOptions();
     loadCustomers();
@@ -243,4 +243,4 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
     initializeApp();
-} 
+}

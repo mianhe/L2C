@@ -3,12 +3,12 @@
 从测试文件中提取 docstring 并生成 Markdown 或 HTML 格式的测试文档
 使用方法: python generate_test_doc.py <测试文件路径> [--html] [--output <输出文件>]
 """
+import argparse
+import importlib.util
+import inspect
 import os
 import re
 import sys
-import inspect
-import argparse
-import importlib.util
 
 # 导入但未使用的模块，暂时注释掉
 # import markdown
@@ -153,16 +153,13 @@ class TestDocGenerator:
 
         # 手动构建目录，确保层次结构
         if not docs["classes"]:
-            content += (
-                '<p class="warning">警告: 在文件中未找到测试类。' "请确保测试类是直接定义在此文件中，而不是导入的。</p>"
-            )
+            content += '<p class="warning">警告: 在文件中未找到测试类。' "请确保测试类是直接定义在此文件中，而不是导入的。</p>"
         else:
             content += '<ul class="toc-root">'
             for cls in docs["classes"]:
                 cls_id = cls["name"].lower()
                 content += (
-                    f'<li class="toc-class"><a href="#{cls_id}">'
-                    f'<span class="class-icon">📋</span> {cls["name"]}</a>'
+                    f'<li class="toc-class"><a href="#{cls_id}">' f'<span class="class-icon">📋</span> {cls["name"]}</a>'
                 )
                 if cls["methods"]:
                     content += "<ul>"

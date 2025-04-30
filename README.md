@@ -90,4 +90,3 @@ pytest --cov=app --cov-report=html
 2. 完成开发后提交Pull Request
 3. CI检查通过后合并到main分支
 4. 立即删除特性分支
-

@@ -51,4 +51,4 @@ test_mcp_api_documentation.html
 
 # 排除.DS_Store文件(macOS)
 .DS_Store
-**/.DS_Store 
+**/.DS_Store

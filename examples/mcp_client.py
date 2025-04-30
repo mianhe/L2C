@@ -1,6 +1,7 @@
-import requests
 import uuid
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
+
+import requests
 
 
 class MCPClient:
@@ -20,12 +21,12 @@ class MCPClient:
         """生成唯一请求ID"""
         return str(uuid.uuid4())
 
-    def _call_api(self, tool: str, parameters: Dict[str, Any] = None) -> Dict[str, Any]:
+    def _call_api(self, tool: str, parameters: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """调用API
 
         参数:
             tool (str): 工具名称
-            parameters (Dict[str, Any], optional): 工具参数
+            parameters (Optional[Dict[str, Any]]): 工具参数
 
         返回:
             Dict[str, Any]: API响应
@@ -54,12 +55,12 @@ class MCPClient:
 
         参数:
             customer_id (int): 客户ID
-            fields (List[str], optional): 需要返回的字段列表
+            fields (Optional[List[str]]): 需要返回的字段列表
 
         返回:
             Dict[str, Any]: 客户信息
         """
-        parameters = {"customer_id": customer_id}
+        parameters: Dict[str, Any] = {"customer_id": customer_id}
         if fields:
             parameters["fields"] = fields
 
@@ -70,12 +71,12 @@ class MCPClient:
 
         参数:
             customer_name (str): 客户名称
-            fields (List[str], optional): 需要返回的字段列表
+            fields (Optional[List[str]]): 需要返回的字段列表
 
         返回:
             Dict[str, Any]: 客户信息
         """
-        parameters = {"customer_name": customer_name}
+        parameters: Dict[str, Any] = {"customer_name": customer_name}
         if fields:
             parameters["fields"] = fields
 
@@ -88,7 +89,8 @@ class MCPClient:
             List[Dict[str, str]]: 工具列表
         """
         result = self._call_api("list_tools")
-        return result.get("tools", [])
+        tools: List[Dict[str, str]] = result.get("tools", [])
+        return tools
 
     def get_service_metadata(self) -> Dict[str, Any]:
         """获取服务元数据

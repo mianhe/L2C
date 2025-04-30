@@ -1,12 +1,13 @@
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
 import logging
 import os
 
-from app.db.database import init_db
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
 from app.api import customers
+from app.db.database import init_db
 from app.mcp.router import router as mcp_router
 
 # 配置日志

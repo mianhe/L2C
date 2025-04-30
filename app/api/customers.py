@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from typing import List
-from fastapi.responses import JSONResponse
 import logging
+from typing import List
 
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+
+from app.config.options import CustomerSize
 from app.db.database import get_db
 from app.db.models import Customer
-from app.schemas.customer import CustomerSchema, CustomerCreate, CustomerUpdate
-from app.config.options import CustomerSize
-
+from app.schemas.customer import CustomerCreate, CustomerSchema, CustomerUpdate
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

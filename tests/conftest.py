@@ -1,8 +1,9 @@
 # Standard library imports
-import pytest
 import os
 import sys
 from pathlib import Path
+
+import pytest
 from sqlalchemy import text
 
 # 添加项目根目录到 Python 路径
@@ -12,11 +13,12 @@ sys.path.insert(0, project_root)
 # 设置测试环境变量 (这必须在导入任何应用模块之前)
 os.environ["TESTING"] = "1"
 
+from app.config.options import CustomerSize  # noqa: E402
+
 # 以下导入必须在设置环境变量和Python路径之后
 # 这是一个有效的例外，因为这些模块依赖于上面的配置
-from app.db.database import engine, set_test_db, SessionLocal  # noqa: E402
+from app.db.database import SessionLocal, engine, set_test_db  # noqa: E402
 from app.db.models import Base, Customer  # noqa: E402
-from app.config.options import CustomerSize  # noqa: E402
 
 # 创建表结构
 Base.metadata.create_all(bind=engine)
@@ -27,9 +29,10 @@ test_session = SessionLocal()
 # 设置测试数据库会话
 set_test_db(test_session)
 
+from fastapi.testclient import TestClient  # noqa: E402
+
 # 导入 FastAPI 应用 (必须在设置测试数据库后)
 from main import app  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
 
 
 # 每个测试开始前清空所有表
