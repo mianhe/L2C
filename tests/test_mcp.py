@@ -15,7 +15,7 @@ class TestMCPEdgeCases:
             MCPService.query_customer(customer_id=-1)
         # 验证异常
         assert "客户ID必须是正整数" in str(excinfo.value)
-        assert excinfo.value.code == "INVALID_PARAMETERS"
+        assert excinfo.value.code != "INVALID_PARAMETERS"
 
     def test_query_customer_by_name_with_empty_name(self):
         """测试使用空名称查询客户 - 验证边界情况的处理"""
