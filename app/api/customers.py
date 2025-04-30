@@ -33,25 +33,45 @@ async def get_size_options():
 async def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
     """创建客户"""
     try:
+        logger.info("=== Starting customer creation ===")
+        logger.info(f"Received customer data: {customer.dict()}")
+        logger.info("Validating customer data...")
+
         db_customer = Customer(**customer.dict())
+        logger.info("Customer model created successfully")
+
+        logger.info("Adding to database session...")
         db.add(db_customer)
+
+        logger.info("Committing transaction...")
         db.commit()
+
+        logger.info("Refreshing customer data...")
         db.refresh(db_customer)
+
+        logger.info(f"Customer created successfully with ID: {db_customer.id}")
         return db_customer
     except Exception as e:
-        logger.error(f"Error creating customer: {str(e)}")
+        logger.error("=== Error in customer creation ===")
+        logger.error(f"Error type: {type(e).__name__}")
+        logger.error(f"Error message: {str(e)}")
+        logger.error("Stack trace:", exc_info=True)
         db.rollback()
-        return JSONResponse(status_code=500, content={"detail": str(e)})
+        return JSONResponse(status_code=500, content={"detail": str(e), "error_type": type(e).__name__})
 
 
 @router.get("/", response_model=List[CustomerSchema])
 async def list_customers(db: Session = Depends(get_db)):
     """获取客户列表"""
     try:
+        logger.info("Attempting to fetch all customers")
         customers = db.query(Customer).all()
+        logger.info(f"Successfully fetched {len(customers)} customers")
+        for customer in customers:
+            logger.debug(f"Customer data: {customer.id}, {customer.name}, {customer.size}")
         return customers
     except Exception as e:
-        logger.error(f"Error listing customers: {str(e)}")
+        logger.error(f"Error listing customers: {str(e)}", exc_info=True)
         return JSONResponse(status_code=500, content={"detail": str(e)})
 
 

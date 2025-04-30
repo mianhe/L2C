@@ -190,6 +190,25 @@ function initializeApp() {
         }
     });
 
+    // 添加重试函数
+    async function fetchWithRetry(url, options, maxRetries = 3) {
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                console.log(`Attempt ${i + 1} of ${maxRetries} for ${url}`);
+                const response = await fetch(url, options);
+                console.log(`Response received for ${url}:`, {
+                    status: response.status,
+                    statusText: response.statusText
+                });
+                return response;
+            } catch (error) {
+                console.error(`Attempt ${i + 1} failed:`, error);
+                if (i === maxRetries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // 递增延迟
+            }
+        }
+    }
+
     // Form submission handler
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -209,8 +228,9 @@ function initializeApp() {
                 : '/api/customers';
 
             const method = currentCustomerId ? 'PUT' : 'POST';
+            console.log('Sending request:', { url, method, formData });
 
-            const response = await fetch(url, {
+            const response = await fetchWithRetry(url, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json'
@@ -219,17 +239,30 @@ function initializeApp() {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('Error response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                try {
+                    const errorData = JSON.parse(errorText);
+                    throw new Error(errorData.detail || `Server error: ${response.status}`);
+                } catch (e) {
+                    throw new Error(`Server error: ${response.status} - ${errorText || response.statusText}`);
+                }
             }
 
-            console.log(`Customer ${currentCustomerId ? 'updated' : 'created'} successfully`);
+            const result = await response.json();
+            console.log('Save successful:', result);
+
             modal.style.display = 'none';
             form.reset();
-            loadCustomers();
+            await loadCustomers();
 
         } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('Error saving customer. Please try again.');
+            console.error('Error saving customer:', error);
+            alert('Error saving customer: ' + error.message);
         }
     });
 

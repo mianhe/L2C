@@ -90,3 +90,84 @@ pytest --cov=app --cov-report=html
 2. 完成开发后提交Pull Request
 3. CI检查通过后合并到main分支
 4. 立即删除特性分支
+
+## 部署说明
+
+### 1. 环境要求
+- Ubuntu 服务器
+- Python 3.10
+- 至少 1GB 可用内存
+- 至少 10GB 可用磁盘空间
+
+### 2. 部署步骤
+
+1. 连接到服务器：
+```bash
+ssh ubuntu@your-server-ip
+```
+
+2. 克隆代码：
+```bash
+git clone <your-repository-url> ~/l2c
+cd ~/l2c
+```
+
+3. 运行部署脚本：
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+4. 检查服务状态：
+```bash
+sudo supervisorctl status l2c
+```
+
+### 3. 查看日志
+
+- 应用日志：
+```bash
+tail -f /var/log/l2c.out.log
+```
+
+- 错误日志：
+```bash
+tail -f /var/log/l2c.err.log
+```
+
+### 4. 常用命令
+
+- 重启服务：
+```bash
+sudo supervisorctl restart l2c
+```
+
+- 停止服务：
+```bash
+sudo supervisorctl stop l2c
+```
+
+- 启动服务：
+```bash
+sudo supervisorctl start l2c
+```
+
+### 5. 防火墙配置
+
+确保服务器的安全组/防火墙允许以下端口：
+- 8000: 应用服务端口
+
+### 6. 注意事项
+
+1. 首次部署后需要初始化数据库
+2. 确保服务器时间正确设置
+3. 定期检查日志文件大小
+4. 建议设置日志轮转
+
+### 7. 故障排除
+
+如果遇到问题：
+1. 检查日志文件
+2. 确认 supervisor 服务状态
+3. 验证 Python 虚拟环境是否正确激活
+4. 检查文件权限
